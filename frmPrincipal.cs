@@ -11,10 +11,6 @@ namespace MinisorterFileAnalizer
 {
     public partial class frmPrincipal : Form
     {
-        public frmPrincipal()
-        {
-            InitializeComponent();
-        }
 
 
         private string ruta;
@@ -22,6 +18,13 @@ namespace MinisorterFileAnalizer
         private int numeradorDeRegistros;
         private string[] archivosParaProcesar;
         private List<Bulto> bultos;
+        ContextMenuStrip cmGrillaBultos = new ContextMenuStrip();
+
+        public frmPrincipal()
+        {
+            InitializeComponent();
+        }
+
         private void frmPrincipal_Load(object sender, EventArgs e)
         {
             ruta = "C:\\Temp\\ftpcoe\\originales\\2025-04 - Abril";
@@ -34,6 +37,26 @@ namespace MinisorterFileAnalizer
             lblCantidadDeRegistros.Text = "0";
 
             getFormSizeAndLocation();
+
+            //Menu Contextual Presupuestos.-
+            cmGrillaBultos.Items.Add("Descargar...", null, descargarBultos);
+            dgvBultos.ContextMenuStrip = cmGrillaBultos;
+
+        }
+
+        private void frmPrincipal_Move(object sender, EventArgs e)
+        {
+            updateFormSizeAndLocation();
+        }
+
+        private void frmPrincipal_Resize(object sender, EventArgs e)
+        {
+            updateFormSizeAndLocation();
+        }
+
+        private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            FormData.SaveFormSizeAndPosition(this);
         }
 
         private void txtDirectorio_Leave(object sender, EventArgs e)
@@ -46,22 +69,18 @@ namespace MinisorterFileAnalizer
         {
             bultos = new List<Bulto>();
             cantidadDeArchivosProcesados = 0;
+            numeradorDeRegistros = 0;
 
             //GUI
             lblCantidadDeArchivos.Text = "0";
             lblCantidadDeRegistros.Text = "0";
             dgvBultos.Rows.Clear();
 
-            numeradorDeRegistros = 0;
-
             foreach (string archivo in archivosParaProcesar)
             {
                 procesarArchivo(archivo);
             }
-
         }
-
-
 
         private void procesarArchivo(string archivo)
         {
@@ -112,8 +131,8 @@ namespace MinisorterFileAnalizer
                 valores[6] = nuevoBulto.nSalidaPrevista;
                 valores[7] = nuevoBulto.nSalidaReal;
                 valores[8] = nuevoBulto.motivoDestino;
-                valores[9] = nuevoBulto.date;
-                valores[10] = nuevoBulto.time;
+                valores[9] = nuevoBulto.date.ToString();
+                valores[10] = nuevoBulto.time.ToString();
                 valores[11] = nuevoBulto.longitud;
                 valores[12] = nuevoBulto.ancho;
                 valores[13] = nuevoBulto.alto;
@@ -130,7 +149,6 @@ namespace MinisorterFileAnalizer
 
             lblCantidadDeRegistros.Text = bultos.Count().ToString();
             lblCantidadDeArchivos.Text = cantidadDeArchivosProcesados.ToString();
-
 
 
             //cargaEnProgreso = true;
@@ -172,7 +190,6 @@ namespace MinisorterFileAnalizer
 
         }
 
-
         #region FormSize & Location
 
         private void updateFormSizeAndLocation()
@@ -197,20 +214,58 @@ namespace MinisorterFileAnalizer
 
         #endregion
 
-        private void frmPrincipal_Move(object sender, EventArgs e)
+        public void descargarBultos(object sender, EventArgs e)
         {
-            updateFormSizeAndLocation();
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "Archivo CSV (*.csv)|*.csv| Archivo XML (*.xml)|*.xml";
+            dlg.Title = "Guardar bultos";
+            dlg.FileName = "Bultos_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+
+                if (dlg.FilterIndex == 1)
+                {
+                    // Exportar a CSV
+                    StringBuilder csvContent = new StringBuilder();
+                    csvContent.AppendLine("TipoMensaje,CodigoPais,PlazaAndreani,NSorter,NLineaEntrada,NSalidaPrevista,NSalidaReal,MotivoDestino,Date,Time,Longitud,Ancho,Alto,RVol,Peso,ReporteLectura,ReportePeso,ReporteVolumen,ReporteClasificacion,CodigoDeBarras,NombreArchivo");
+                    foreach (Bulto bulto in bultos)
+                    {
+                        csvContent.AppendLine($"{bulto.tipoMensaje},{bulto.codigoPais},{bulto.plazaAndreani},{bulto.nSorter},{bulto.nLineaEntrada},{bulto.nSalidaPrevista},{bulto.nSalidaReal},{bulto.motivoDestino},{bulto.date},{bulto.time},{bulto.longitud},{bulto.ancho},{bulto.alto},{bulto.rVol},{bulto.peso},{bulto.reporteLectura},{bulto.reportePeso},{bulto.reporteVolumen},{bulto.reporteClasificacion},{bulto.codigoDeBarras},{bulto.nombreArchivo}");
+                    }
+                    File.WriteAllText(dlg.FileName, csvContent.ToString());
+                }
+                else if (dlg.FilterIndex == 2)
+                {
+                    // Exportar a XML
+                    System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(typeof(List<Bulto>));
+                    using (StreamWriter writer = new StreamWriter(dlg.FileName))
+                    {
+                        serializer.Serialize(writer, bultos);
+                    }
+                }
+
+                MessageBox.Show("bultos descargado Ok");
+            }
+
 
         }
 
-        private void frmPrincipal_Resize(object sender, EventArgs e)
+        private void btnExaminar_Click(object sender, EventArgs e)
         {
-            updateFormSizeAndLocation();
-        }
+           
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = txtDirectorio.Text;  
 
-        private void frmPrincipal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            FormData.SaveFormSizeAndPosition(this);
+
+            if (dlg.ShowDialog() ==  DialogResult.OK)
+            {
+                txtDirectorio.Text = dlg.SelectedPath;
+            }
+            else
+            {
+
+            }
         }
     }
 }

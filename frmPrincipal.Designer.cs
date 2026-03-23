@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPrincipal));
             label1 = new Label();
             txtDirectorio = new TextBox();
-            button1 = new Button();
+            btnExaminar = new Button();
             btnAnalizar = new Button();
             label2 = new Label();
             lblCantidadDeArchivosParaProcesar = new Label();
@@ -88,14 +90,15 @@
             txtDirectorio.TabIndex = 1;
             txtDirectorio.Leave += txtDirectorio_Leave;
             // 
-            // button1
+            // btnExaminar
             // 
-            button1.Location = new Point(410, 25);
-            button1.Name = "button1";
-            button1.Size = new Size(45, 23);
-            button1.TabIndex = 2;
-            button1.Text = "...";
-            button1.UseVisualStyleBackColor = true;
+            btnExaminar.Location = new Point(410, 25);
+            btnExaminar.Name = "btnExaminar";
+            btnExaminar.Size = new Size(45, 23);
+            btnExaminar.TabIndex = 2;
+            btnExaminar.Text = "...";
+            btnExaminar.UseVisualStyleBackColor = true;
+            btnExaminar.Click += btnExaminar_Click;
             // 
             // btnAnalizar
             // 
@@ -169,14 +172,17 @@
             dgvBultos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvBultos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvBultos.Columns.AddRange(new DataGridViewColumn[] { colId, colTipoMensaje, colCodigoPais, colPlazaAndreani, colNroSorter, colNroLineaEntrada, colSalidaPrevista, colSalidaReal, colMotivoDestino, colDate, colHora, colLongitud, colAncho, colAlto, colVolumen, colPeso, colReporteLectura, colReportePeso, colReporteVolumen, colReporteClasificacion, colCodigoBarras, colNombreArchivo });
-            dgvBultos.Location = new Point(17, 222);
+            dgvBultos.Location = new Point(17, 211);
             dgvBultos.Name = "dgvBultos";
             dgvBultos.RowHeadersVisible = false;
-            dgvBultos.Size = new Size(786, 290);
+            dgvBultos.Size = new Size(786, 301);
             dgvBultos.TabIndex = 10;
             // 
             // colId
             // 
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.Format = "N0";
+            colId.DefaultCellStyle = dataGridViewCellStyle1;
             colId.HeaderText = "Id";
             colId.Name = "colId";
             // 
@@ -348,11 +354,12 @@
             Controls.Add(lblCantidadDeArchivosParaProcesar);
             Controls.Add(label2);
             Controls.Add(btnAnalizar);
-            Controls.Add(button1);
+            Controls.Add(btnExaminar);
             Controls.Add(txtDirectorio);
             Controls.Add(label1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "frmPrincipal";
-            Text = "frmPrincipal";
+            Text = "Mini Sorter File Analyzer";
             FormClosing += frmPrincipal_FormClosing;
             Load += frmPrincipal_Load;
             Move += frmPrincipal_Move;
@@ -368,7 +375,7 @@
 
         private Label label1;
         private TextBox txtDirectorio;
-        private Button button1;
+        private Button btnExaminar;
         private Button btnAnalizar;
         private Label label2;
         private Label lblCantidadDeArchivosParaProcesar;
